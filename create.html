@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create a Meetup — TagAlong</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .create-layout { display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start; }
+    .create-card { background: var(--surface); border-radius: var(--radius-xl); border: 1px solid var(--border); box-shadow: var(--shadow-md); padding: 48px; }
+    .create-header { margin-bottom: 36px; }
+    .create-header h2 { margin-bottom: 8px; }
+    .create-header p { font-size: .9rem; }
+    .form-section-label { font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .form-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .char-count { font-size: .75rem; color: var(--text-muted); text-align: right; margin-top: 4px; }
+    .tag-select-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag-select-item { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 50px; border: 2px solid var(--border); background: var(--bg); cursor: pointer; font-size: .85rem; font-weight: 500; transition: var(--transition); user-select: none; }
+    .tag-select-item:hover { border-color: var(--pink-dark); background: var(--pink); }
+    .tag-select-item.selected { background: var(--pink); border-color: var(--pink-dark); color: #c2185b; font-weight: 700; }
+    .gender-pills { display: flex; gap: 12px; flex-wrap: wrap; }
+    .gender-pill { flex: 1; min-width: 120px; padding: 14px 20px; border-radius: var(--radius-md); border: 2px solid var(--border); background: var(--bg); text-align: center; cursor: pointer; transition: var(--transition); font-size: .9rem; font-weight: 600; }
+    .gender-pill:hover { border-color: var(--pink-dark); background: var(--pink); }
+    .gender-pill.active { border-color: var(--pink-dark); background: linear-gradient(135deg,#fce4ec,#f8bbd0); color: #c2185b; }
+    .gender-pill .gp-icon { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+    .spots-slider-wrap { display: flex; align-items: center; gap: 16px; }
+    .spots-slider { flex: 1; -webkit-appearance: none; height: 6px; border-radius: 4px; background: linear-gradient(90deg,var(--pink-dark) 0%,var(--pink) 100%); outline: none; }
+    .spots-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: white; border: 3px solid var(--pink-dark); box-shadow: 0 2px 8px rgba(240,98,146,.3); cursor: pointer; }
+    .spots-num { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg,#f48fb1,#f06292); color: white; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(240,98,146,.3); }
+    .preview-panel { position: sticky; top: 90px; }
+    .preview-label { font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .preview-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 20px; }
+    .pc-accent { height: 6px; background: linear-gradient(90deg,#f48fb1,#4fc3f7,#fff176); }
+    .pc-body { padding: 24px; }
+    .pc-host { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .pc-title { font-family: var(--font-head); font-weight: 700; margin-bottom: 6px; font-size: .97rem; }
+    .pc-loc { font-size: .8rem; color: var(--text-muted); margin-bottom: 12px; }
+    .pc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .pc-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 14px; }
+    .tip-card { background: linear-gradient(135deg,#e1f5fe,#fce4ec); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; }
+    .tip-card h4 { font-size: .9rem; margin-bottom: 12px; }
+    .tip-item { display: flex; gap: 8px; font-size: .82rem; color: var(--text-muted); margin-bottom: 8px; }
+    .submit-row { display: flex; gap: 12px; margin-top: 36px; }
+    .loc-suggestions { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); display: none; flex-direction: column; overflow: hidden; margin-top: 4px; }
+    .loc-suggestions.show { display: flex; }
+    .loc-sug-item { padding: 10px 14px; font-size: .85rem; cursor: pointer; transition: var(--transition); }
+    .loc-sug-item:hover { background: var(--bg); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">TagAlong 🤝</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="dashboard.html">Explore</a>
+        <a href="create.html">Create</a>
+        <a href="profile.html">Profile</a>
+      </div>
+      <div class="nav-actions">
+        <a href="profile.html">
+          <div class="avatar" style="width:38px;height:38px;font-size:.88rem">A</div>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container page-body">
+    <!-- The id="create-meetup-form" on this wrapper is the page detection flag for script.js -->
+    <div class="create-layout" id="create-meetup-form">
+
+      <!-- ══ FORM ══ -->
+      <div class="create-card fade-in">
+        <div class="create-header">
+          <h2>Create a Meetup 🗺️</h2>
+          <p>Post a plan and find verified Amity students to join you. It takes less than 2 minutes!</p>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="form-section-label">📝 Basic Info</div>
+
+        <div class="form-group">
+          <label>Meetup Title *</label>
+          <input type="text" id="title-input" placeholder="e.g. Sunset Walk at Botanical Garden 🌅" maxlength="70"/>
+          <div class="char-count"><span id="title-count">0</span>/70</div>
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea id="desc-input" placeholder="Tell people what this meetup is about, what to bring, vibe, etc. ✨" rows="4" maxlength="300"></textarea>
+          <div class="char-count"><span id="desc-count">0</span>/300</div>
+        </div>
+
+        <!-- When & Where -->
+        <div class="form-section-label" style="margin-top:8px">📍 When &amp; Where</div>
+
+        <div class="form-group">
+          <label>Location *</label>
+          <input type="text" id="loc-input" placeholder="Start typing a campus location…" autocomplete="off"/>
+          <div class="loc-suggestions" id="loc-suggestions">
+            <div class="loc-sug-item">📍 Amity Café, Block A</div>
+            <div class="loc-sug-item">📍 Central Library, 3rd Floor</div>
+            <div class="loc-sug-item">📍 Botanical Garden, Block B</div>
+            <div class="loc-sug-item">📍 Main Canteen, Block F</div>
+            <div class="loc-sug-item">📍 Sports Ground, Block G</div>
+            <div class="loc-sug-item">📍 Main Lawn, near Fountain</div>
+            <div class="loc-sug-item">📍 Student Activity Centre</div>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="date-input"/>
+          </div>
+          <div class="form-group">
+            <label>Time *</label>
+            <input type="time" id="time-input"/>
+          </div>
+        </div>
+
+        <!-- Who Can Join -->
+        <div class="form-section-label" style="margin-top:8px">🛡️ Who Can Join</div>
+
+        <div class="form-group">
+          <label>Gender Preference</label>
+          <div class="gender-pills">
+            <!-- data-gender used by selectGenderPill() in script.js -->
+            <div class="gender-pill active" data-gender="Everyone">
+              <span class="gp-icon">🤝</span>Everyone
+            </div>
+            <div class="gender-pill" data-gender="Girls Only">
+              <span class="gp-icon">👩</span>Girls Only
+            </div>
+            <div class="gender-pill" data-gender="Boys Only">
+              <span class="gp-icon">👦</span>Boys Only
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Max Participants *</label>
+          <div class="spots-slider-wrap">
+            <input type="range" class="spots-slider" id="spots-slider" min="2" max="20" value="5"/>
+            <div class="spots-num" id="spots-display">5</div>
+          </div>
+          <p style="font-size:.8rem;margin-top:8px">
+            Including you — so this meetup will have <strong id="spots-others">4</strong> other participants max.
+          </p>
+        </div>
+
+        <!-- Category -->
+        <div class="form-section-label" style="margin-top:8px">🏷️ Category</div>
+        <div class="form-group">
+          <div class="tag-select-wrap" id="category-chips">
+            <!-- data-category used by selectCategoryChip() in script.js -->
+            <div class="tag-select-item" data-category="Food">🍕 Food</div>
+            <div class="tag-select-item" data-category="Study">📚 Study</div>
+            <div class="tag-select-item" data-category="Sports">⚽ Sports</div>
+            <div class="tag-select-item" data-category="Walk">🚶 Walk</div>
+            <div class="tag-select-item" data-category="Social">🎉 Social</div>
+            <div class="tag-select-item" data-category="Gaming">🎮 Gaming</div>
+            <div class="tag-select-item" data-category="Coffee">☕ Coffee</div>
+            <div class="tag-select-item" data-category="Creative">🎨 Creative</div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-row">
+          <a href="dashboard.html" class="btn btn-secondary btn-lg">Discard</a>
+          <!-- id="submit-meetup-btn" — wired to handleCreateMeetup() in script.js -->
+          <button class="btn btn-primary btn-lg" id="submit-meetup-btn" style="flex:1">
+            🚀 Post Meetup
+          </button>
+        </div>
+
+        <p style="font-size:.78rem;color:var(--text-muted);margin-top:16px;text-align:center">
+          ⚠️ Your Amity ID is automatically verified. Posts violating community guidelines will be removed.
+        </p>
+      </div><!-- /create-card -->
+
+      <!-- ══ LIVE PREVIEW PANEL ══ -->
+      <div class="preview-panel fade-in" style="transition-delay:.2s">
+        <div class="preview-label">👁️ Live Preview</div>
+
+        <div class="preview-card">
+          <div class="pc-accent"></div>
+          <div class="pc-body">
+            <div class="pc-host">
+              <div class="avatar" style="width:36px;height:36px;font-size:.85rem" id="preview-avatar">A</div>
+              <div>
+                <div style="font-weight:600;font-size:.87rem;line-height:1.2" id="preview-host-name">You</div>
+                <div style="font-size:.75rem;color:var(--text-muted)" id="preview-host-course">Amity University</div>
+              </div>
+            </div>
+            <!-- These elements are updated live by updateLivePreview() in script.js -->
+            <div class="pc-title" id="preview-title">Your meetup title will appear here…</div>
+            <div class="pc-loc"   id="preview-loc">📍 Location</div>
+            <div class="pc-tags">
+              <span class="tag tag-blue"  id="preview-time">⏰ Date &amp; Time</span>
+              <span class="tag tag-pink"  id="preview-gender">Everyone</span>
+            </div>
+            <div class="pc-footer">
+              <span style="font-size:.82rem;color:var(--text-muted)">
+                👥 1 / <span id="preview-spots">5</span>
+              </span>
+              <button class="btn btn-primary btn-sm" disabled>Join</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <h4>💡 Tips for a great meetup</h4>
+          <div class="tip-item"><span>✅</span><span>Be specific about the location (building, floor, etc.)</span></div>
+          <div class="tip-item"><span>✅</span><span>Add a fun description to attract the right people</span></div>
+          <div class="tip-item"><span>✅</span><span>Set a realistic participant limit — smaller groups feel safer</span></div>
+          <div class="tip-item"><span>✅</span><span>Respond quickly to join requests so spots don't go to waste</span></div>
+          <div class="tip-item"><span>✅</span><span>After the meetup, rate your participants — it builds trust!</span></div>
+        </div>
+      </div>
+
+    </div><!-- /create-layout (#create-meetup-form) -->
+  </div><!-- /container -->
+
+  <!-- ══ SUCCESS MODAL ══ -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal" style="text-align:center">
+      <div style="font-size:3.5rem;margin-bottom:20px">🎉</div>
+      <h3>Meetup Posted!</h3>
+      <p style="margin:12px 0 28px">Your meetup is now live. Students can discover and request to join it. Redirecting to dashboard…</p>
+      <div style="display:flex;gap:12px">
+        <a href="create.html" class="btn btn-secondary btn-full">Create Another</a>
+        <a href="dashboard.html" class="btn btn-primary btn-full">View Dashboard →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- script.js handles ALL logic; no inline JS here -->
+  <script src="../js/main.js"></script>
+  <script src="../js/script.js"></script>
+
+  <script>
+    /* Populate preview with user info from localStorage */
+    (function () {
+      try {
+        var user = JSON.parse(localStorage.getItem('tagalong_user'));
+        if (!user) return;
+        var nameEl   = document.getElementById('preview-host-name');
+        var courseEl = document.getElementById('preview-host-course');
+        var avEl     = document.getElementById('preview-avatar');
+        if (nameEl)   nameEl.textContent   = user.name + ' (You)';
+        if (courseEl) courseEl.textContent  = user.course || 'Amity University';
+        if (avEl)     avEl.textContent      = user.initial || 'A';
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

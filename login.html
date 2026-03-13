@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Sign Up — TagAlong</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .auth-page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── Left panel ── */
+    .auth-left {
+      background: linear-gradient(145deg, #fce4ec 0%, #e1f5fe 60%, #fffde7 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-left-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+    }
+    .alb1 { width:320px; height:320px; background:var(--pink); opacity:.45; top:-80px; left:-80px; }
+    .alb2 { width:260px; height:260px; background:var(--blue); opacity:.40; bottom:-60px; right:-60px; }
+
+    .auth-left-content { position: relative; z-index: 2; }
+    .auth-left .nav-logo { display: inline-block; font-size: 1.6rem; margin-bottom: 40px; }
+    .auth-left h2 { font-size: 2.2rem; margin-bottom: 16px; line-height: 1.25; }
+    .auth-left p { margin-bottom: 40px; max-width: 340px; }
+
+    .auth-testimonial {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      max-width: 360px;
+      box-shadow: var(--shadow-sm);
+    }
+    .auth-testimonial p { font-size: 0.9rem; font-style: italic; margin-bottom: 14px; color: var(--text); }
+    .at-author { display: flex; align-items: center; gap: 10px; }
+    .at-author strong { display: block; font-size: 0.85rem; }
+    .at-author span   { font-size: 0.78rem; color: var(--text-muted); }
+
+    .auth-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+    .auth-feat-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 500; }
+    .af-icon { font-size: 1.1rem; }
+
+    /* ── Right panel ── */
+    .auth-right {
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 48px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 4px;
+      margin-bottom: 36px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-head);
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .auth-tab.active {
+      background: linear-gradient(135deg, #f48fb1, #f06292);
+      color: white;
+      box-shadow: 0 4px 14px rgba(240,98,146,0.3);
+    }
+
+    /* Forms */
+    .auth-form { display: none; animation: fadeIn 0.3s ease; }
+    .auth-form.active { display: block; }
+
+    .auth-form h3 { margin-bottom: 6px; }
+    .auth-form .sub { font-size: 0.88rem; margin-bottom: 28px; }
+
+    .input-icon-wrap { position: relative; }
+    .input-icon-wrap input {
+      width: 100%;
+      padding-left: 44px;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .pass-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .forgot-link { text-align: right; margin-top: -12px; margin-bottom: 20px; }
+    .forgot-link a { font-size: 0.82rem; color: #f06292; font-weight: 500; }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .divider-text::before, .divider-text::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-text span { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+
+    .social-btns { display: flex; gap: 12px; }
+    .social-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text);
+      transition: var(--transition);
+    }
+    .social-btn:hover { background: var(--bg); border-color: var(--pink-dark); }
+
+    .auth-switch { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-top: 20px; }
+    .auth-switch a { color: #f06292; font-weight: 600; cursor: pointer; }
+
+    .terms-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+    .terms-note a { color: #f06292; }
+
+    .verify-badge {
+      background: var(--yellow);
+      border: 1px solid var(--yellow-dark);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      color: #5d4037;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-page">
+
+    <!-- ══ LEFT PANEL ══ -->
+    <div class="auth-left">
+      <div class="auth-left-blob alb1"></div>
+      <div class="auth-left-blob alb2"></div>
+      <div class="auth-left-content">
+        <a href="../index.html" class="nav-logo">TagAlong 🤝</a>
+        <h2>Your campus,<br/>better together.</h2>
+        <p>Join the safest, friendliest meetup platform built exclusively for Amity University students.</p>
+        <div class="auth-features">
+          <div class="auth-feat-item"><span class="af-icon">✅</span> Verified with your Amity email</div>
+          <div class="auth-feat-item"><span class="af-icon">🛡️</span> Gender comfort filters always available</div>
+          <div class="auth-feat-item"><span class="af-icon">📍</span> Emergency location sharing built-in</div>
+          <div class="auth-feat-item"><span class="af-icon">⭐</span> Rate and review after every meetup</div>
+        </div>
+        <div class="auth-testimonial">
+          <p>"TagAlong completely changed how I explore campus. I met my best friends here!"</p>
+          <div class="at-author">
+            <div class="avatar" style="width:36px;height:36px;font-size:0.85rem">N</div>
+            <div>
+              <strong>Nandini Agarwal</strong>
+              <span>B.Tech CSE, 3rd Year</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RIGHT PANEL ══ -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tab-btn-login">Log In</button>
+          <button class="auth-tab" id="tab-btn-signup">Sign Up</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="auth-form active" id="form-login">
+          <h3>Welcome back! 👋</h3>
+          <p class="sub">Log in to discover and join meetups happening on campus right now.</p>
+
+          <div class="verify-badge">
+            <span>🎓</span>
+            <span>Use your <strong>@s.amity.edu</strong> or <strong>@amity.edu</strong> email only</span>
+          </div>
+
+          <div class="form-group">
+            <label>Amity Email</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="login-email" placeholder="yourname@s.amity.edu"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="login-pass" placeholder="Enter your password"/>
+              <button class="pass-toggle" id="toggle-login-pass">👁️</button>
+            </div>
+          </div>
+          <div class="forgot-link"><a href="#">Forgot password?</a></div>
+          <button class="btn btn-primary btn-full btn-lg" id="login-submit-btn">Log In →</button>
+          <div class="divider-text"><span>or continue with</span></div>
+          <div class="social-btns">
+            <button class="social-btn">🌐 Google</button>
+            <button class="social-btn">🎓 Amity SSO</button>
+          </div>
+          <p class="auth-switch">Don't have an account? <a id="tab-btn-signup">Sign up free</a></p>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div class="auth-form" id="form-signup">
+          <h3>Join TagAlong ✨</h3>
+          <p class="sub">Create your free account with your Amity email and start connecting.</p>
+
+          <div class="verify-badge">
+            <span>🎓</span>
+            <span>Only <strong>@s.amity.edu</strong> emails are accepted</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" id="signup-fname" placeholder="Priya"/>
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" id="signup-lname" placeholder="Sharma"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amity Student Email</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="signup-email" placeholder="a12345678@s.amity.edu"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Course</label>
+              <select id="signup-course">
+                <option value="">Select course</option>
+                <option>B.Tech CSE</option>
+                <option>B.Tech IT</option>
+                <option>BCA</option>
+                <option>MBA</option>
+                <option>BBA</option>
+                <option>B.Com</option>
+                <option>B.Sc</option>
+                <option>Law</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <select id="signup-year">
+                <option value="">Select year</option>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+                <option>PG 1st Year</option>
+                <option>PG 2nd Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Create Password</label>
+            <div class="input-icon-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="signup-pass" placeholder="At least 8 characters"/>
+              <button class="pass-toggle" id="toggle-signup-pass">👁️</button>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full btn-lg" id="signup-submit-btn">Create Account ✨</button>
+          <p class="terms-note">By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+          <p class="auth-switch">Already have an account? <a id="tab-btn-login">Log in</a></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── OTP Modal ─── -->
+  <div class="modal-overlay" id="otp-modal">
+    <div class="modal" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:16px">📧</div>
+      <h3>Verify your email</h3>
+      <p style="margin:12px 0 28px">We sent a 6-digit code to your Amity email. Enter it below to complete signup.</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:28px" id="otp-inputs">
+        <input type="text" maxlength="1" class="otp-box"/>
+        <input type="text" maxlength="1" class="otp-box"/>
+        <input type="text" maxlength="1" class="otp-box"/>
+        <input type="text" maxlength="1" class="otp-box"/>
+        <input type="text" maxlength="1" class="otp-box"/>
+        <input type="text" maxlength="1" class="otp-box"/>
+      </div>
+      <button class="btn btn-primary btn-full" id="otp-verify-btn">Verify & Continue →</button>
+      <p style="font-size:0.82rem;margin-top:14px;color:var(--text-muted)">Didn't receive it? <a href="#" style="color:#f06292;font-weight:600">Resend code</a></p>
+    </div>
+  </div>
+
+  <style>
+    .otp-box {
+      width: 46px; height: 54px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      outline: none;
+      transition: var(--transition);
+      color: var(--text);
+    }
+    .otp-box:focus { border-color: var(--pink-dark); box-shadow: 0 0 0 3px rgba(244,143,177,0.15); }
+  </style>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/script.js"></script>
+</body>
+</html>

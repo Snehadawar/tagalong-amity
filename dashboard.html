@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explore Meetups — TagAlong</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .dash-layout { display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: start; }
+
+    .sidebar {
+      background: var(--surface); border-radius: var(--radius-lg);
+      border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+      padding: 28px; position: sticky; top: 90px;
+    }
+    .sidebar h3 { font-size: .9rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .sidebar-section { margin-bottom: 28px; }
+    .sidebar-section label { font-size: .78rem; font-weight: 700; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; display: block; margin-bottom: 10px; }
+    .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-chip { padding: 6px 14px; border-radius: 50px; font-size: .8rem; font-weight: 500; background: var(--bg); border: 1.5px solid var(--border); cursor: pointer; transition: var(--transition); color: var(--text-muted); }
+    .filter-chip:hover { background: var(--pink); border-color: var(--pink-dark); color: var(--text); }
+    .filter-chip.active { background: var(--pink); border-color: var(--pink-dark); color: #c2185b; font-weight: 600; }
+    .sidebar-input { width: 100%; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: .85rem; background: var(--bg); outline: none; transition: var(--transition); color: var(--text); }
+    .sidebar-input:focus { border-color: var(--pink-dark); }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    .dash-main {}
+    .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .dash-header h2 { font-size: 1.5rem; }
+    .search-bar { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 50px; padding: 10px 20px; min-width: 260px; box-shadow: var(--shadow-sm); }
+    .search-bar input { border: none; outline: none; background: transparent; font-size: .88rem; width: 100%; color: var(--text); }
+    .search-bar span { color: var(--text-muted); font-size: 1rem; }
+
+    .meetup-grid-dash { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .mcard { background: var(--surface); border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; transition: var(--transition); cursor: pointer; }
+    .mcard:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+    .mcard-top { height: 7px; }
+    .mcard-pink   { background: linear-gradient(90deg,#f48fb1,#f06292); }
+    .mcard-blue   { background: linear-gradient(90deg,#81d4fa,#4fc3f7); }
+    .mcard-yellow { background: linear-gradient(90deg,#fff176,#ffee58); }
+    .mcard-purple { background: linear-gradient(90deg,#ce93d8,#ba68c8); }
+    .mcard-green  { background: linear-gradient(90deg,#a5d6a7,#81c784); }
+    .mcard-body { padding: 20px; }
+    .mcard-host { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .mcard-hname { font-weight: 600; font-size: .87rem; line-height: 1.2; }
+    .mcard-hcourse { font-size: .75rem; color: var(--text-muted); }
+    .mcard-title { font-family: var(--font-head); font-weight: 700; font-size: .95rem; margin-bottom: 8px; color: var(--text); }
+    .mcard-loc { font-size: .8rem; color: var(--text-muted); margin-bottom: 12px; }
+    .mcard-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+    .mcard-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 14px; }
+    .spots-info { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
+    .spots-bar { height: 3px; background: var(--bg); border-radius: 2px; margin-top: 4px; }
+    .spots-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg,#81d4fa,#f48fb1); }
+
+    .user-bar { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg,#fce4ec,#e1f5fe); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px; border: 1px solid var(--border); }
+    .user-bar-left { display: flex; align-items: center; gap: 12px; }
+    .user-bar strong { display: block; font-weight: 600; font-size: .9rem; }
+    .user-bar span { font-size: .78rem; color: var(--text-muted); }
+    .user-bar-right { display: flex; gap: 8px; }
+
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 24px; color: var(--text-muted); }
+    .empty-state .es-icon { font-size: 3rem; margin-bottom: 16px; }
+
+    .stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+    .stat-strip-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px 20px; box-shadow: var(--shadow-sm); }
+    .ssi-num   { font-family: var(--font-head); font-weight: 800; font-size: 1.5rem; }
+    .ssi-label { font-size: .78rem; color: var(--text-muted); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">TagAlong 🤝</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="dashboard.html">Explore</a>
+        <a href="create.html">Create</a>
+        <a href="profile.html">Profile</a>
+      </div>
+      <div class="nav-actions">
+        <a href="create.html" class="btn btn-primary btn-sm">+ Create Meetup</a>
+        <a href="profile.html">
+          <div class="avatar" style="width:38px;height:38px;font-size:.88rem" id="nav-avatar">A</div>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container page-body">
+
+    <!-- User Welcome Bar -->
+    <div class="user-bar fade-in">
+      <div class="user-bar-left">
+        <div class="avatar" id="user-bar-avatar">A</div>
+        <div>
+          <strong id="user-bar-name">Hey there! 👋</strong>
+          <span id="user-bar-course">Amity University</span>
+        </div>
+      </div>
+      <div class="user-bar-right">
+        <button class="btn btn-secondary btn-sm" id="emergency-btn">🆘 Emergency</button>
+        <a href="profile.html" class="btn btn-outline btn-sm">My Profile</a>
+      </div>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip fade-in">
+      <div class="stat-strip-item">
+        <div class="ssi-num" id="stat-today">—</div>
+        <div class="ssi-label">Meetups today</div>
+      </div>
+      <div class="stat-strip-item">
+        <div class="ssi-num" id="stat-students">—</div>
+        <div class="ssi-label">Students joined</div>
+      </div>
+      <div class="stat-strip-item">
+        <div class="ssi-num" id="stat-joined">0</div>
+        <div class="ssi-label">You've joined</div>
+      </div>
+      <div class="stat-strip-item">
+        <div class="ssi-num">⭐ 4.8</div>
+        <div class="ssi-label">Platform rating</div>
+      </div>
+    </div>
+
+    <div class="dash-layout">
+
+      <!-- ══ SIDEBAR ══ -->
+      <aside class="sidebar fade-in">
+        <h3>🔍 Filter Meetups</h3>
+
+        <div class="sidebar-section">
+          <label>Search</label>
+          <div style="position:relative">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none">🔍</span>
+            <input class="sidebar-input search-input" type="text" placeholder="Title, location, host…" style="padding-left:36px"/>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <label>Category</label>
+          <div class="filter-chips">
+            <div class="filter-chip active" data-filter-category="All" data-default="true">All</div>
+            <div class="filter-chip" data-filter-category="Study">📚 Study</div>
+            <div class="filter-chip" data-filter-category="Food">🍕 Food</div>
+            <div class="filter-chip" data-filter-category="Sports">⚽ Sports</div>
+            <div class="filter-chip" data-filter-category="Walk">🚶 Walk</div>
+            <div class="filter-chip" data-filter-category="Social">🎉 Social</div>
+            <div class="filter-chip" data-filter-category="Gaming">🎮 Gaming</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <label>Gender Preference</label>
+          <div class="filter-chips">
+            <div class="filter-chip active" data-filter-gender="All" data-default="true">All</div>
+            <div class="filter-chip" data-filter-gender="Everyone">🤝 Everyone</div>
+            <div class="filter-chip" data-filter-gender="Girls Only">👩 Girls Only</div>
+            <div class="filter-chip" data-filter-gender="Boys Only">👦 Boys Only</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <label>When</label>
+          <div class="filter-chips">
+            <div class="filter-chip active" data-filter-when="All" data-default="true">Any time</div>
+            <div class="filter-chip" data-filter-when="Today">Today</div>
+            <div class="filter-chip" data-filter-when="Tomorrow">Tomorrow</div>
+            <div class="filter-chip" data-filter-when="This week">This week</div>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+        <button class="btn btn-secondary btn-full btn-sm" id="clear-filters-btn">Clear all filters</button>
+      </aside>
+
+      <!-- ══ MAIN CONTENT ══ -->
+      <main class="dash-main">
+        <div class="dash-header">
+          <h2>🗓️ Happening now</h2>
+          <div style="display:flex;gap:10px;align-items:center">
+            <span id="results-count" style="font-size:.85rem;color:var(--text-muted)">Loading…</span>
+            <div class="search-bar">
+              <span>🔍</span>
+              <input type="text" class="search-input" placeholder="Quick search…"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic cards are injected here by script.js → renderMeetups() -->
+        <div class="meetup-grid-dash" id="meetup-grid"></div>
+
+      </main>
+    </div><!-- /dash-layout -->
+  </div><!-- /container -->
+
+  <!-- ══ JOIN CONFIRM MODAL ══ -->
+  <div class="modal-overlay" id="join-modal">
+    <div class="modal">
+      <button class="modal-close" data-modal-close="join-modal">✕</button>
+      <div style="font-size:2.5rem;margin-bottom:14px">🙌</div>
+      <h3>Request to Join</h3>
+      <p style="margin:8px 0 24px">Your request will go to the host. They'll review and approve. You'll be notified instantly.</p>
+      <div class="form-group">
+        <label>Short intro note (optional)</label>
+        <textarea placeholder="Hey! Would love to join your meetup 😊" rows="3"></textarea>
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-secondary btn-full" data-modal-close="join-modal">Cancel</button>
+        <button class="btn btn-primary btn-full" id="modal-confirm-join">Send Request ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MEETUP DETAIL MODAL ══ (populated dynamically by openDetailModal) ══ -->
+  <div class="modal-overlay" id="meetup-detail-modal">
+    <div class="modal" style="max-width:560px">
+      <button class="modal-close" data-modal-close="meetup-detail-modal">✕</button>
+      <div style="height:6px;background:linear-gradient(90deg,#f48fb1,#4fc3f7);border-radius:4px;margin-bottom:24px"></div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+        <div class="avatar" style="width:52px;height:52px;font-size:1.2rem" id="modal-host-initial">?</div>
+        <div>
+          <h3 style="margin:0" id="modal-host-name">Host Name</h3>
+          <span style="font-size:.8rem;color:var(--text-muted)" id="modal-host-course">Course</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="showToast('Report submitted. Thank you.','⚠️')">Report</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('User blocked.','🚫')">Block</button>
+        </div>
+      </div>
+      <h2 style="margin-bottom:8px;font-size:1.4rem" id="modal-title">Meetup Title</h2>
+      <p style="margin-bottom:20px" id="modal-description">Description goes here.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">📅 Date &amp; Time</div>
+          <div style="font-weight:600;font-size:.9rem" id="modal-datetime">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">📍 Location</div>
+          <div style="font-weight:600;font-size:.9rem" id="modal-location">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">👥 Spots</div>
+          <div style="font-weight:600;font-size:.9rem" id="modal-spots">—</div>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px">
+          <div style="font-size:.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">🛡️ Gender</div>
+          <div style="font-weight:600;font-size:.9rem" id="modal-gender">—</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-secondary btn-full" data-modal-close="meetup-detail-modal">Maybe later</button>
+        <button class="btn btn-primary btn-full" id="modal-join-btn">Request to Join 🙌</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Link main.js (shared helpers) then script.js (app logic) -->
+  <script src="../js/main.js"></script>
+  <script src="../js/script.js"></script>
+
+  <script>
+    /* ── Populate user bar from localStorage ── */
+    (function () {
+      try {
+        var user = JSON.parse(localStorage.getItem('tagalong_user'));
+        if (!user) return;
+        var nameEl   = document.getElementById('user-bar-name');
+        var courseEl = document.getElementById('user-bar-course');
+        var avatarEl = document.getElementById('user-bar-avatar');
+        var navAvEl  = document.getElementById('nav-avatar');
+        if (nameEl)   nameEl.textContent   = 'Hey, ' + user.name.split(' ')[0] + '! 👋';
+        if (courseEl) courseEl.textContent  = user.course || 'Amity University';
+        if (avatarEl) avatarEl.textContent  = user.initial || 'A';
+        if (navAvEl)  navAvEl.textContent   = user.initial || 'A';
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>

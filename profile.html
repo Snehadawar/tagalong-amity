@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Profile — TagAlong</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .profile-layout { display: grid; grid-template-columns: 340px 1fr; gap: 32px; align-items: start; }
+
+    /* ── Profile Card ── */
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      position: sticky;
+      top: 90px;
+    }
+
+    .profile-banner {
+      height: 120px;
+      background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 50%, #fffde7 100%);
+      position: relative;
+    }
+
+    .profile-avatar-wrap {
+      position: absolute;
+      bottom: -44px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .profile-avatar-big {
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f48fb1, #4fc3f7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 2rem;
+      color: white;
+      border: 4px solid var(--surface);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .verified-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 24px;
+      height: 24px;
+      background: #4caf50;
+      border: 3px solid var(--surface);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+    }
+
+    .profile-info {
+      padding: 56px 28px 28px;
+      text-align: center;
+    }
+
+    .profile-name { font-size: 1.3rem; margin-bottom: 4px; }
+    .profile-handle { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 4px; }
+    .profile-course { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+
+    .profile-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--yellow);
+      border: 1px solid var(--yellow-dark);
+      border-radius: 50px;
+      padding: 5px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f57f17;
+      margin-bottom: 20px;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .ps-item {
+      background: var(--bg);
+      padding: 16px 8px;
+      text-align: center;
+    }
+    .ps-num   { font-family: var(--font-head); font-weight: 800; font-size: 1.3rem; }
+    .ps-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 500; }
+
+    .profile-divider { height: 1px; background: var(--border); margin: 0 0 20px; }
+
+    .profile-section-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+
+    .interests-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .interest-chip {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .safety-buttons { display: flex; flex-direction: column; gap: 8px; }
+    .safety-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 0.83rem;
+      font-weight: 500;
+      transition: var(--transition);
+      text-align: left;
+    }
+    .safety-btn:hover { background: var(--surface); border-color: var(--pink-dark); }
+    .safety-btn.danger:hover { background: #ffebee; border-color: #ef9a9a; }
+
+    /* ── Right panel ── */
+    .profile-right {}
+
+    .profile-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 4px;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+    .profile-tab {
+      padding: 9px 22px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-head);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .profile-tab.active {
+      background: linear-gradient(135deg, #f48fb1, #f06292);
+      color: white;
+      box-shadow: 0 3px 12px rgba(240,98,146,0.3);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+    /* Meetup history cards */
+    .history-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .history-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
+      transition: var(--transition);
+    }
+    .history-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .hc-top  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .hc-title { font-family: var(--font-head); font-weight: 600; font-size: 0.93rem; }
+    .hc-meta  { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+    .hc-rating { display: flex; gap: 2px; font-size: 0.85rem; }
+    .star-filled { color: #ffc107; }
+    .star-empty  { color: #e0e0e0; }
+
+    /* Edit profile form */
+    .edit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .edit-form-full { grid-column: 1/-1; }
+
+    /* Review cards */
+    .reviews-list { display: flex; flex-direction: column; gap: 16px; }
+    .review-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .review-stars  { display: flex; gap: 2px; font-size: 0.9rem; }
+    .review-text   { font-size: 0.87rem; color: var(--text-muted); line-height: 1.6; }
+    .review-date   { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+
+    /* Amity ID Verification */
+    .id-verify-card {
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      border: 1px solid #a5d6a7;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .id-verify-icon { font-size: 2rem; }
+    .id-verify-text strong { display: block; font-weight: 600; color: #2e7d32; margin-bottom: 2px; }
+    .id-verify-text span   { font-size: 0.8rem; color: #558b2f; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="../index.html" class="nav-logo">TagAlong 🤝</a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="dashboard.html">Explore</a>
+        <a href="create.html">Create</a>
+        <a href="profile.html" class="active">Profile</a>
+      </div>
+      <div class="nav-actions">
+        <a href="create.html" class="btn btn-primary btn-sm">+ Create Meetup</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container page-body">
+    <div class="profile-layout">
+
+      <!-- ═══ PROFILE CARD ═══ -->
+      <aside class="profile-card fade-in">
+        <div class="profile-banner">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-big">
+              A
+              <div class="verified-badge">✓</div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-info">
+          <h2 class="profile-name">Aryan Kapoor</h2>
+          <p class="profile-handle">@aryan.kapoor</p>
+          <p class="profile-course">B.Tech CSE · 3rd Year · Amity Noida</p>
+          <div class="profile-rating">⭐ 4.8 rating · 12 reviews</div>
+
+          <div class="profile-stats">
+            <div class="ps-item">
+              <div class="ps-num">17</div>
+              <div class="ps-label">Meetups joined</div>
+            </div>
+            <div class="ps-item">
+              <div class="ps-num">5</div>
+              <div class="ps-label">Hosted</div>
+            </div>
+            <div class="ps-item">
+              <div class="ps-num">12</div>
+              <div class="ps-label">Friends made</div>
+            </div>
+          </div>
+
+          <div class="profile-section-title">Interests</div>
+          <div class="interests-wrap">
+            <span class="interest-chip">💻 Coding</span>
+            <span class="interest-chip">♟️ Chess</span>
+            <span class="interest-chip">🎵 Music</span>
+            <span class="interest-chip">📸 Photography</span>
+            <span class="interest-chip">🏃 Running</span>
+            <span class="interest-chip">☕ Coffee</span>
+          </div>
+
+          <div class="profile-divider"></div>
+          <div class="profile-section-title">Safety Tools</div>
+          <div class="safety-buttons">
+            <button class="safety-btn" id="emergency-btn">
+              <span>🆘</span> Share Emergency Location
+            </button>
+            <button class="safety-btn" onclick="openModal('report-modal')">
+              <span>⚠️</span> Report a User
+            </button>
+            <button class="safety-btn danger" onclick="openModal('block-modal')">
+              <span>🚫</span> Block a User
+            </button>
+          </div>
+
+          <div class="profile-divider" style="margin-top:20px"></div>
+          <button class="btn btn-secondary btn-full" onclick="switchTab('edit')">✏️ Edit Profile</button>
+        </div>
+      </aside>
+
+      <!-- ═══ PROFILE RIGHT ═══ -->
+      <main class="profile-right fade-in" style="transition-delay:0.15s">
+
+        <!-- Verified badge -->
+        <div class="id-verify-card">
+          <div class="id-verify-icon">🎓</div>
+          <div class="id-verify-text">
+            <strong>Amity Student Verified ✓</strong>
+            <span>Your identity is verified using your Amity University email (<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9effacafadaeabaeafacadaaabdeedb0fff3f7eae7b0fbfaeb">[email&#160;protected]</a>)</span>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+          <button class="profile-tab active" onclick="switchTab('history')">Meetup History</button>
+          <button class="profile-tab" onclick="switchTab('reviews')">Reviews</button>
+          <button class="profile-tab" onclick="switchTab('edit')">Edit Profile</button>
+        </div>
+
+        <!-- TAB: History -->
+        <div class="tab-content active" id="tab-history">
+          <h3 style="margin-bottom:20px">Your Meetup History 📅</h3>
+          <div class="history-grid">
+
+            <div class="history-card">
+              <div class="hc-top">
+                <div>
+                  <div class="hc-title">LeetCode Grind Session 💻</div>
+                  <div class="hc-meta">📍 Central Library · Nov 12, 2024</div>
+                </div>
+                <span class="tag tag-green">Hosted</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <div class="hc-rating">
+                  <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span>
+                  <span style="font-size:0.78rem;color:var(--text-muted);margin-left:4px">5.0</span>
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted)">5 participants</span>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="hc-top">
+                <div>
+                  <div class="hc-title">Sunset Walk 🌅</div>
+                  <div class="hc-meta">📍 Botanical Garden · Nov 8, 2024</div>
+                </div>
+                <span class="tag tag-blue">Joined</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <div class="hc-rating">
+                  <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-empty">★</span>
+                  <span style="font-size:0.78rem;color:var(--text-muted);margin-left:4px">4.0</span>
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted)">3 participants</span>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="hc-top">
+                <div>
+                  <div class="hc-title">Canteen Lunch 🍱</div>
+                  <div class="hc-meta">📍 Main Canteen · Nov 5, 2024</div>
+                </div>
+                <span class="tag tag-blue">Joined</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <div class="hc-rating">
+                  <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span>
+                  <span style="font-size:0.78rem;color:var(--text-muted);margin-left:4px">5.0</span>
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted)">4 participants</span>
+              </div>
+            </div>
+
+            <div class="history-card">
+              <div class="hc-top">
+                <div>
+                  <div class="hc-title">Chess Tournament ♟️</div>
+                  <div class="hc-meta">📍 Student Activity Centre · Oct 28, 2024</div>
+                </div>
+                <span class="tag tag-green">Hosted</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <div class="hc-rating">
+                  <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-empty">★</span>
+                  <span style="font-size:0.78rem;color:var(--text-muted);margin-left:4px">4.5</span>
+                </div>
+                <span style="font-size:0.78rem;color:var(--text-muted)">8 participants</span>
+              </div>
+            </div>
+
+          </div><!-- /history-grid -->
+        </div>
+
+        <!-- TAB: Reviews -->
+        <div class="tab-content" id="tab-reviews">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+            <h3>Reviews from others ⭐</h3>
+            <div class="profile-rating">⭐ 4.8 avg · 12 reviews</div>
+          </div>
+          <div class="reviews-list">
+            <div class="review-card">
+              <div class="review-header">
+                <div class="avatar" style="width:38px;height:38px;font-size:0.88rem;background:linear-gradient(135deg,#f48fb1,#f06292)">R</div>
+                <div>
+                  <strong style="font-size:0.9rem">Riya Sharma</strong>
+                  <div class="review-stars">
+                    <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span>
+                  </div>
+                </div>
+              </div>
+              <p class="review-text">Aryan is an amazing host! The LeetCode session was super productive and he explained concepts so patiently. 100% would join his meetups again.</p>
+              <div class="review-date">November 12, 2024 · LeetCode Grind Session</div>
+            </div>
+            <div class="review-card">
+              <div class="review-header">
+                <div class="avatar" style="width:38px;height:38px;font-size:0.88rem;background:linear-gradient(135deg,#81d4fa,#4fc3f7)">K</div>
+                <div>
+                  <strong style="font-size:0.9rem">Karan Mehta</strong>
+                  <div class="review-stars">
+                    <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-empty">★</span>
+                  </div>
+                </div>
+              </div>
+              <p class="review-text">Great company on the walk! Was on time, super friendly and made everyone comfortable. Would definitely tag along again.</p>
+              <div class="review-date">November 8, 2024 · Sunset Walk</div>
+            </div>
+            <div class="review-card">
+              <div class="review-header">
+                <div class="avatar" style="width:38px;height:38px;font-size:0.88rem;background:linear-gradient(135deg,#a5d6a7,#81c784);color:#2e7d32">P</div>
+                <div>
+                  <strong style="font-size:0.9rem">Priya Verma</strong>
+                  <div class="review-stars">
+                    <span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span><span class="star-filled">★</span>
+                  </div>
+                </div>
+              </div>
+              <p class="review-text">One of the best TagAlong experiences I've had. He organised the chess event perfectly — clear rules, fun atmosphere, very safe vibes.</p>
+              <div class="review-date">October 28, 2024 · Chess Tournament</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Edit Profile -->
+        <div class="tab-content" id="tab-edit">
+          <h3 style="margin-bottom:24px">Edit Your Profile ✏️</h3>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px;box-shadow:var(--shadow-sm)">
+
+            <div class="edit-form-grid">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" value="Aryan"/>
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" value="Kapoor"/>
+              </div>
+              <div class="form-group edit-form-full">
+                <label>Amity Email (cannot change)</label>
+                <input type="email" value="a21305012345@s.amity.edu" disabled style="opacity:0.6;cursor:not-allowed"/>
+              </div>
+              <div class="form-group">
+                <label>Course</label>
+                <select>
+                  <option selected>B.Tech CSE</option>
+                  <option>B.Tech IT</option>
+                  <option>BCA</option>
+                  <option>MBA</option>
+                  <option>BBA</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Year</label>
+                <select>
+                  <option>1st Year</option>
+                  <option>2nd Year</option>
+                  <option selected>3rd Year</option>
+                  <option>4th Year</option>
+                </select>
+              </div>
+              <div class="form-group edit-form-full">
+                <label>Bio</label>
+                <textarea rows="3" placeholder="Tell fellow Amitians a bit about yourself…">B.Tech CSE student passionate about competitive programming, chess and photography. Always down for a good study session or campus walk!</textarea>
+              </div>
+              <div class="form-group edit-form-full">
+                <label>Interests (comma separated)</label>
+                <input type="text" value="Coding, Chess, Music, Photography, Running, Coffee"/>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <h4 style="margin-bottom:16px;font-size:0.95rem">🔔 Notification Preferences</h4>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:0.9rem;font-weight:500">
+                <input type="checkbox" checked style="width:16px;height:16px;accent-color:#f06292"/> Email when someone requests to join my meetup
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:0.9rem;font-weight:500">
+                <input type="checkbox" checked style="width:16px;height:16px;accent-color:#f06292"/> Email when my join request is approved
+              </label>
+              <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:0.9rem;font-weight:500">
+                <input type="checkbox" style="width:16px;height:16px;accent-color:#f06292"/> Weekly digest of upcoming meetups
+              </label>
+            </div>
+
+            <div style="display:flex;gap:12px">
+              <button class="btn btn-secondary" onclick="switchTab('history')">Cancel</button>
+              <button class="btn btn-primary" onclick="saveProfile()">Save Changes ✨</button>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div><!-- /profile-layout -->
+  </div><!-- /container -->
+
+  <!-- ─── Report Modal ─── -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal">
+      <button class="modal-close" data-modal-close="report-modal">✕</button>
+      <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
+      <h3>Report a User</h3>
+      <p style="margin:8px 0 24px;font-size:0.9rem">Help keep TagAlong safe. All reports are reviewed by our moderation team within 24 hours.</p>
+      <div class="form-group">
+        <label>User's name or handle</label>
+        <input type="text" placeholder="@username or full name"/>
+      </div>
+      <div class="form-group">
+        <label>Reason for report</label>
+        <select>
+          <option>Inappropriate behaviour</option>
+          <option>Fake profile / impersonation</option>
+          <option>Harassment or bullying</option>
+          <option>Made me feel unsafe</option>
+          <option>Spam or misleading meetup</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Additional details</label>
+        <textarea rows="3" placeholder="Please describe what happened…"></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="closeModal('report-modal');showToast('Report submitted. Thank you for keeping us safe!','⚠️')">Submit Report</button>
+    </div>
+  </div>
+
+  <!-- ─── Block Modal ─── -->
+  <div class="modal-overlay" id="block-modal">
+    <div class="modal" style="text-align:center">
+      <button class="modal-close" data-modal-close="block-modal">✕</button>
+      <div style="font-size:2.5rem;margin-bottom:12px">🚫</div>
+      <h3>Block a User</h3>
+      <p style="margin:8px 0 24px;font-size:0.9rem">Blocked users won't be able to see your profile or request to join your meetups.</p>
+      <div class="form-group" style="text-align:left">
+        <label>Enter the user's name or handle</label>
+        <input type="text" placeholder="@username"/>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button class="btn btn-secondary btn-full" data-modal-close="block-modal">Cancel</button>
+        <button class="btn btn-primary btn-full" onclick="closeModal('block-modal');showToast('User blocked successfully.','🚫')">Block User</button>
+      </div>
+    </div>
+  </div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../js/main.js"></script>
+  <script src="../js/script.js"></script>
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.profile-tab').forEach((t, i) => {
+        t.classList.toggle('active', ['history','reviews','edit'][i] === tab);
+      });
+      ['history','reviews','edit'].forEach(id => {
+        document.getElementById('tab-' + i
